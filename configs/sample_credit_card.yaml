@@ -1,0 +1,19 @@
+# Sample credit-card dataset with an explicit fraud mix emphasizing card testing.
+num_users: 400
+transactions_per_user: 120
+fraud_rate: 0.025
+business_type: credit_card
+risk_appetite: high
+noise_level: 0.35
+random_seed: 7
+output_format: parquet
+start_date: "2024-01-01"
+currency: INR
+fraud_mix:
+  large_spend: 0.10
+  geo_anomaly: 0.10
+  card_testing: 0.25
+  velocity: 0.15
+  merchant: 0.10
+  gradual_escalation: 0.15
+  multi_stage: 0.15

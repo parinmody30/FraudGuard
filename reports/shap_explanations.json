@@ -1,0 +1,35 @@
+[
+  {
+    "transaction_id": "T0000001234",
+    "fraud_probability": 9.8e-05,
+    "decision": "ALLOW",
+    "confidence": "LOW",
+    "contributors": [
+      {
+        "feature": "Velocity (24 Hour)",
+        "impact": -2.9408,
+        "direction": "decrease"
+      },
+      {
+        "feature": "Device Risk",
+        "impact": -1.5773,
+        "direction": "decrease"
+      },
+      {
+        "feature": "Merchant Category",
+        "impact": -1.25,
+        "direction": "decrease"
+      },
+      {
+        "feature": "Device Type",
+        "impact": 0.3903,
+        "direction": "increase"
+      },
+      {
+        "feature": "Average Spend",
+        "impact": 0.0225,
+        "direction": "increase"
+      }
+    ]
+  }
+]

@@ -1,0 +1,11 @@
+# Sample e-commerce dataset spanning multiple payment rails and channels.
+num_users: 500
+transactions_per_user: 100
+fraud_rate: 0.03
+business_type: ecommerce
+risk_appetite: high
+noise_level: 0.4
+random_seed: 21
+output_format: json
+start_date: "2024-01-01"
+currency: INR

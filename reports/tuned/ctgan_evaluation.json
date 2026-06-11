@@ -1,0 +1,234 @@
+{
+  "n_real": 13315,
+  "n_synth": 13315,
+  "similarity": {
+    "ks_continuous": {
+      "amount": 0.1162,
+      "account_age_days": 0.1052,
+      "avg_user_spend": 0.1281,
+      "median_user_spend": 0.1632,
+      "velocity_1h": 0.0505,
+      "velocity_24h": 0.0403,
+      "merchant_risk_score": 0.2203,
+      "device_risk_score": 0.1282
+    },
+    "mean_ks": 0.119,
+    "js_categorical": {
+      "currency": 0.0,
+      "merchant_category": 0.0165,
+      "payment_method": 0.0478,
+      "channel": 0.0125,
+      "device_type": 0.0185,
+      "city": 0.0167,
+      "state": 0.0235,
+      "country": 0.0005,
+      "fraud_type": 0.0021,
+      "is_foreign": 0.0017,
+      "is_fraud": 0.0018
+    },
+    "mean_js": 0.0129,
+    "correlation_preservation": {
+      "mean_abs_corr_diff": 0.1107,
+      "max_abs_corr_diff": 0.8721,
+      "frobenius": 1.808
+    },
+    "mutual_information_preservation": {
+      "mean_abs_mi_diff": 0.0279,
+      "max_abs_mi_diff": 0.0844,
+      "per_feature": {
+        "timestamp_epoch": {
+          "real": 0.0717,
+          "synth": 0.0003
+        },
+        "timestamp_hour": {
+          "real": 0.0429,
+          "synth": 0.0025
+        },
+        "amount": {
+          "real": 0.0359,
+          "synth": 0.0035
+        },
+        "currency": {
+          "real": 0.0,
+          "synth": 0.0005
+        },
+        "merchant_category": {
+          "real": 0.0305,
+          "synth": 0.0025
+        },
+        "payment_method": {
+          "real": 0.0,
+          "synth": 0.0022
+        },
+        "channel": {
+          "real": 0.0013,
+          "synth": 0.0
+        },
+        "device_type": {
+          "real": 0.0,
+          "synth": 0.0031
+        },
+        "city": {
+          "real": 0.0171,
+          "synth": 0.0071
+        },
+        "state": {
+          "real": 0.0183,
+          "synth": 0.0025
+        },
+        "country": {
+          "real": 0.0144,
+          "synth": 0.0056
+        },
+        "is_foreign": {
+          "real": 0.0135,
+          "synth": 0.0
+        },
+        "account_age_days": {
+          "real": 0.0606,
+          "synth": 0.0
+        },
+        "avg_user_spend": {
+          "real": 0.0018,
+          "synth": 0.0025
+        },
+        "median_user_spend": {
+          "real": 0.0096,
+          "synth": 0.0061
+        },
+        "velocity_1h": {
+          "real": 0.0594,
+          "synth": 0.0001
+        },
+        "velocity_24h": {
+          "real": 0.0845,
+          "synth": 0.0001
+        },
+        "merchant_risk_score": {
+          "real": 0.0301,
+          "synth": 0.0037
+        },
+        "device_risk_score": {
+          "real": 0.07,
+          "synth": 0.0019
+        }
+      }
+    },
+    "fraud_prevalence": {
+      "real": 0.0612,
+      "synth": 0.0873,
+      "abs_diff": 0.0261
+    },
+    "fraud_type_preservation": {
+      "distribution": {
+        "account_takeover": {
+          "real": 0.1067,
+          "synth": 0.1049
+        },
+        "beneficiary": {
+          "real": 0.1166,
+          "synth": 0.1445
+        },
+        "card_testing": {
+          "real": 0.1166,
+          "synth": 0.1204
+        },
+        "geo_anomaly": {
+          "real": 0.1067,
+          "synth": 0.1204
+        },
+        "large_spend": {
+          "real": 0.1067,
+          "synth": 0.1178
+        },
+        "merchant": {
+          "real": 0.1166,
+          "synth": 0.0963
+        },
+        "new_device": {
+          "real": 0.1067,
+          "synth": 0.1169
+        },
+        "night_time": {
+          "real": 0.1067,
+          "synth": 0.0851
+        },
+        "velocity": {
+          "real": 0.1166,
+          "synth": 0.0937
+        }
+      },
+      "js_divergence": 0.0021
+    }
+  },
+  "ml_utility": {
+    "logistic": {
+      "reference_real_on_real": {
+        "precision": 0.4327,
+        "recall": 0.8653,
+        "f1": 0.5769,
+        "roc_auc": 0.9621,
+        "pr_auc": 0.7782
+      },
+      "TSTR": {
+        "precision": 0.108,
+        "recall": 0.2279,
+        "f1": 0.1466,
+        "roc_auc": 0.5423,
+        "pr_auc": 0.1047
+      },
+      "TRTS": {
+        "precision": 0.1676,
+        "recall": 0.8908,
+        "f1": 0.2821,
+        "roc_auc": 0.9028,
+        "pr_auc": 0.5572
+      }
+    },
+    "gradient_boosting": {
+      "reference_real_on_real": {
+        "precision": 0.9362,
+        "recall": 0.7184,
+        "f1": 0.8129,
+        "roc_auc": 0.9882,
+        "pr_auc": 0.9003
+      },
+      "TSTR": {
+        "precision": 0.0971,
+        "recall": 0.1187,
+        "f1": 0.1068,
+        "roc_auc": 0.5029,
+        "pr_auc": 0.0911
+      },
+      "TRTS": {
+        "precision": 0.913,
+        "recall": 0.0258,
+        "f1": 0.0501,
+        "roc_auc": 0.6924,
+        "pr_auc": 0.2089
+      }
+    }
+  },
+  "thresholds": {
+    "mean_ks": 0.2,
+    "mean_js": 0.1,
+    "fraud_prevalence_abs": 0.03,
+    "fraud_type_js": 0.1,
+    "tstr_roc_auc_drop": 0.15
+  },
+  "recommendation": {
+    "verdict": "CTGAN NEEDS TUNING",
+    "ready": false,
+    "checks": {
+      "mean_ks_ok": true,
+      "mean_js_ok": true,
+      "prevalence_ok": true,
+      "fraud_type_ok": true,
+      "tstr_utility_ok": false
+    },
+    "tstr_roc_auc_drop": 0.4853,
+    "failing_reasons": [
+      "TSTR ROC-AUC drop 0.4853 > 0.15 (ref 0.9882, tstr 0.5029)"
+    ]
+  }
+}

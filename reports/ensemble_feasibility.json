@@ -1,0 +1,446 @@
+{
+  "context": {
+    "n_test": 4227,
+    "n_test_fraud": 227,
+    "users_disjoint": true
+  },
+  "base_metrics": {
+    "logistic_regression": {
+      "n": 4227,
+      "n_positive": 227,
+      "roc_auc": 0.9642,
+      "pr_auc": 0.738,
+      "precision": 0.3459,
+      "recall": 0.8899,
+      "f1": 0.4982,
+      "recall_easy": 0.6957,
+      "recall_medium": 0.6271,
+      "recall_hard": 0.6981,
+      "recall_at_1pct": 0.1894,
+      "recall_at_2pct": 0.3392,
+      "recall_at_5pct": 0.6476
+    },
+    "random_forest": {
+      "n": 4227,
+      "n_positive": 227,
+      "roc_auc": 0.9875,
+      "pr_auc": 0.9002,
+      "precision": 0.979,
+      "recall": 0.6167,
+      "f1": 0.7568,
+      "recall_easy": 0.8348,
+      "recall_medium": 0.8475,
+      "recall_hard": 0.717,
+      "recall_at_1pct": 0.1894,
+      "recall_at_2pct": 0.37,
+      "recall_at_5pct": 0.8018
+    },
+    "gradient_boosting": {
+      "n": 4227,
+      "n_positive": 227,
+      "roc_auc": 0.9885,
+      "pr_auc": 0.8998,
+      "precision": 0.9379,
+      "recall": 0.7313,
+      "f1": 0.8218,
+      "recall_easy": 0.8435,
+      "recall_medium": 0.8136,
+      "recall_hard": 0.7547,
+      "recall_at_1pct": 0.1894,
+      "recall_at_2pct": 0.3656,
+      "recall_at_5pct": 0.793
+    },
+    "xgboost": {
+      "n": 4227,
+      "n_positive": 227,
+      "roc_auc": 0.9863,
+      "pr_auc": 0.9028,
+      "precision": 0.8304,
+      "recall": 0.8194,
+      "f1": 0.8248,
+      "recall_easy": 0.8696,
+      "recall_medium": 0.8475,
+      "recall_hard": 0.717,
+      "recall_at_1pct": 0.1894,
+      "recall_at_2pct": 0.3744,
+      "recall_at_5pct": 0.7974
+    }
+  },
+  "confusion": {
+    "logistic_regression": {
+      "TP": 202,
+      "FP": 382,
+      "TN": 3618,
+      "FN": 25
+    },
+    "random_forest": {
+      "TP": 140,
+      "FP": 3,
+      "TN": 3997,
+      "FN": 87
+    },
+    "gradient_boosting": {
+      "TP": 166,
+      "FP": 11,
+      "TN": 3989,
+      "FN": 61
+    },
+    "xgboost": {
+      "TP": 186,
+      "FP": 38,
+      "TN": 3962,
+      "FN": 41
+    }
+  },
+  "tp_overlap": {
+    "logistic_regression": {
+      "logistic_regression": 1.0,
+      "random_forest": 0.6683,
+      "gradient_boosting": 0.7951,
+      "xgboost": 0.8216
+    },
+    "random_forest": {
+      "logistic_regression": 0.6683,
+      "random_forest": 1.0,
+      "gradient_boosting": 0.8323,
+      "xgboost": 0.7249
+    },
+    "gradient_boosting": {
+      "logistic_regression": 0.7951,
+      "random_forest": 0.8323,
+      "gradient_boosting": 1.0,
+      "xgboost": 0.8624
+    },
+    "xgboost": {
+      "logistic_regression": 0.8216,
+      "random_forest": 0.7249,
+      "gradient_boosting": 0.8624,
+      "xgboost": 1.0
+    }
+  },
+  "fn_recovery": {
+    "counts": {
+      "logistic_regression": {
+        "logistic_regression": 0,
+        "random_forest": 65,
+        "gradient_boosting": 39,
+        "xgboost": 27
+      },
+      "random_forest": {
+        "logistic_regression": 3,
+        "random_forest": 0,
+        "gradient_boosting": 1,
+        "xgboost": 3
+      },
+      "gradient_boosting": {
+        "logistic_regression": 3,
+        "random_forest": 27,
+        "gradient_boosting": 0,
+        "xgboost": 3
+      },
+      "xgboost": {
+        "logistic_regression": 11,
+        "random_forest": 49,
+        "gradient_boosting": 23,
+        "xgboost": 0
+      }
+    },
+    "pct": {
+      "logistic_regression": {
+        "logistic_regression": 0.0,
+        "random_forest": 74.71,
+        "gradient_boosting": 63.93,
+        "xgboost": 65.85
+      },
+      "random_forest": {
+        "logistic_regression": 12.0,
+        "random_forest": 0.0,
+        "gradient_boosting": 1.64,
+        "xgboost": 7.32
+      },
+      "gradient_boosting": {
+        "logistic_regression": 12.0,
+        "random_forest": 31.03,
+        "gradient_boosting": 0.0,
+        "xgboost": 7.32
+      },
+      "xgboost": {
+        "logistic_regression": 44.0,
+        "random_forest": 56.32,
+        "gradient_boosting": 37.7,
+        "xgboost": 0.0
+      }
+    },
+    "details": {
+      "logistic_regression": {
+        "n_missed": 25,
+        "recovered_by": {
+          "random_forest": {
+            "count": 3,
+            "pct": 12.0
+          },
+          "gradient_boosting": {
+            "count": 3,
+            "pct": 12.0
+          },
+          "xgboost": {
+            "count": 11,
+            "pct": 44.0
+          }
+        },
+        "recovered_by_any": {
+          "count": 12,
+          "pct": 48.0
+        }
+      },
+      "random_forest": {
+        "n_missed": 87,
+        "recovered_by": {
+          "logistic_regression": {
+            "count": 65,
+            "pct": 74.71
+          },
+          "gradient_boosting": {
+            "count": 27,
+            "pct": 31.03
+          },
+          "xgboost": {
+            "count": 49,
+            "pct": 56.32
+          }
+        },
+        "recovered_by_any": {
+          "count": 74,
+          "pct": 85.06
+        }
+      },
+      "gradient_boosting": {
+        "n_missed": 61,
+        "recovered_by": {
+          "logistic_regression": {
+            "count": 39,
+            "pct": 63.93
+          },
+          "random_forest": {
+            "count": 1,
+            "pct": 1.64
+          },
+          "xgboost": {
+            "count": 23,
+            "pct": 37.7
+          }
+        },
+        "recovered_by_any": {
+          "count": 48,
+          "pct": 78.69
+        }
+      },
+      "xgboost": {
+        "n_missed": 41,
+        "recovered_by": {
+          "logistic_regression": {
+            "count": 27,
+            "pct": 65.85
+          },
+          "random_forest": {
+            "count": 3,
+            "pct": 7.32
+          },
+          "gradient_boosting": {
+            "count": 3,
+            "pct": 7.32
+          }
+        },
+        "recovered_by_any": {
+          "count": 28,
+          "pct": 68.29
+        }
+      }
+    }
+  },
+  "tier_residuals": {
+    "logistic_regression": {
+      "easy": {
+        "TP": 103,
+        "FN": 12
+      },
+      "medium": {
+        "TP": 53,
+        "FN": 6
+      },
+      "hard": {
+        "TP": 46,
+        "FN": 7
+      }
+    },
+    "random_forest": {
+      "easy": {
+        "TP": 75,
+        "FN": 40
+      },
+      "medium": {
+        "TP": 32,
+        "FN": 27
+      },
+      "hard": {
+        "TP": 33,
+        "FN": 20
+      }
+    },
+    "gradient_boosting": {
+      "easy": {
+        "TP": 88,
+        "FN": 27
+      },
+      "medium": {
+        "TP": 43,
+        "FN": 16
+      },
+      "hard": {
+        "TP": 35,
+        "FN": 18
+      }
+    },
+    "xgboost": {
+      "easy": {
+        "TP": 99,
+        "FN": 16
+      },
+      "medium": {
+        "TP": 49,
+        "FN": 10
+      },
+      "hard": {
+        "TP": 38,
+        "FN": 15
+      }
+    }
+  },
+  "probability_correlation": {
+    "logistic_regression": {
+      "logistic_regression": 1.0,
+      "random_forest": 0.73,
+      "gradient_boosting": 0.6537,
+      "xgboost": 0.6555
+    },
+    "random_forest": {
+      "logistic_regression": 0.73,
+      "random_forest": 1.0,
+      "gradient_boosting": 0.9469,
+      "xgboost": 0.9182
+    },
+    "gradient_boosting": {
+      "logistic_regression": 0.6537,
+      "random_forest": 0.9469,
+      "gradient_boosting": 1.0,
+      "xgboost": 0.9273
+    },
+    "xgboost": {
+      "logistic_regression": 0.6555,
+      "random_forest": 0.9182,
+      "gradient_boosting": 0.9273,
+      "xgboost": 1.0
+    }
+  },
+  "ensemble_metrics": {
+    "xgboost": {
+      "n": 4227,
+      "n_positive": 227,
+      "roc_auc": 0.9863,
+      "pr_auc": 0.9028,
+      "precision": 0.8304,
+      "recall": 0.8194,
+      "f1": 0.8248,
+      "recall_easy": 0.8696,
+      "recall_medium": 0.8475,
+      "recall_hard": 0.717,
+      "recall_at_1pct": 0.1894,
+      "recall_at_2pct": 0.3744,
+      "recall_at_5pct": 0.7974
+    },
+    "soft_voting": {
+      "n": 4227,
+      "n_positive": 227,
+      "roc_auc": 0.986,
+      "pr_auc": 0.9068,
+      "precision": 0.8282,
+      "recall": 0.8282,
+      "f1": 0.8282,
+      "recall_easy": 0.8609,
+      "recall_medium": 0.8475,
+      "recall_hard": 0.7358,
+      "recall_at_1pct": 0.1894,
+      "recall_at_2pct": 0.3744,
+      "recall_at_5pct": 0.8194
+    },
+    "weighted_voting": {
+      "n": 4227,
+      "n_positive": 227,
+      "roc_auc": 0.9866,
+      "pr_auc": 0.9094,
+      "precision": 0.8238,
+      "recall": 0.8238,
+      "f1": 0.8238,
+      "recall_easy": 0.8522,
+      "recall_medium": 0.8475,
+      "recall_hard": 0.7358,
+      "recall_at_1pct": 0.1894,
+      "recall_at_2pct": 0.3744,
+      "recall_at_5pct": 0.8238
+    },
+    "stacking": {
+      "n": 4227,
+      "n_positive": 227,
+      "roc_auc": 0.9874,
+      "pr_auc": 0.913,
+      "precision": 0.8194,
+      "recall": 0.8194,
+      "f1": 0.8194,
+      "recall_easy": 0.8696,
+      "recall_medium": 0.8305,
+      "recall_hard": 0.6981,
+      "recall_at_1pct": 0.1894,
+      "recall_at_2pct": 0.3744,
+      "recall_at_5pct": 0.8062
+    }
+  },
+  "voting_weights": {
+    "logistic_regression": 0.738,
+    "random_forest": 0.9002,
+    "gradient_boosting": 0.8998,
+    "xgboost": 0.9028
+  },
+  "decision": {
+    "verdict": "B",
+    "recommendation": "USE XGBOOST ONLY; AVOID ENSEMBLE COMPLEXITY",
+    "pr_auc_min_gain": 0.01,
+    "reference_xgboost": {
+      "pr_auc": 0.9028,
+      "recall_hard": 0.717
+    },
+    "ensembles": [
+      {
+        "ensemble": "soft_voting",
+        "pr_auc": 0.9068,
+        "delta_pr_auc": 0.004,
+        "recall_hard": 0.7358,
+        "delta_recall_hard": 0.0188
+      },
+      {
+        "ensemble": "weighted_voting",
+        "pr_auc": 0.9094,
+        "delta_pr_auc": 0.0066,
+        "recall_hard": 0.7358,
+        "delta_recall_hard": 0.0188
+      },
+      {
+        "ensemble": "stacking",
+        "pr_auc": 0.913,
+        "delta_pr_auc": 0.0102,
+        "recall_hard": 0.6981,
+        "delta_recall_hard": -0.0189
+      }
+    ],
+    "best_ensemble": "stacking"
+  }
+}

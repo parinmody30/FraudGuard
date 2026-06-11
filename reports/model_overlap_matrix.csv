@@ -1,0 +1,5 @@
+,logistic_regression,random_forest,gradient_boosting,xgboost
+logistic_regression,1.0,0.6683,0.7951,0.8216
+random_forest,0.6683,1.0,0.8323,0.7249
+gradient_boosting,0.7951,0.8323,1.0,0.8624
+xgboost,0.8216,0.7249,0.8624,1.0

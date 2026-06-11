@@ -1,0 +1,61 @@
+{
+  "columns": [
+    "timestamp",
+    "amount",
+    "currency",
+    "merchant_category",
+    "payment_method",
+    "channel",
+    "device_type",
+    "city",
+    "state",
+    "country",
+    "is_foreign",
+    "account_age_days",
+    "avg_user_spend",
+    "median_user_spend",
+    "velocity_1h",
+    "velocity_24h",
+    "merchant_risk_score",
+    "device_risk_score",
+    "is_fraud",
+    "fraud_type"
+  ],
+  "continuous": [
+    "amount",
+    "account_age_days",
+    "avg_user_spend",
+    "median_user_spend",
+    "velocity_1h",
+    "velocity_24h",
+    "merchant_risk_score",
+    "device_risk_score"
+  ],
+  "categorical": [
+    "currency",
+    "merchant_category",
+    "payment_method",
+    "channel",
+    "device_type",
+    "city",
+    "state",
+    "country",
+    "fraud_type"
+  ],
+  "boolean": [
+    "is_foreign",
+    "is_fraud"
+  ],
+  "datetime": [
+    "timestamp"
+  ],
+  "integer_columns": [
+    "account_age_days",
+    "velocity_1h",
+    "velocity_24h"
+  ],
+  "unit_interval_columns": [
+    "merchant_risk_score",
+    "device_risk_score"
+  ]
+}

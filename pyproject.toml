@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fraudlab-generator"
+version = "0.1.0"
+description = "Synthetic financial-transaction dataset generator for fraud-detection benchmarking."
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "pyarrow>=12.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# The Phase 1.1 evaluation framework (fraudlab.evaluation) needs scikit-learn/scipy.
+# The core generator does not depend on them.
+eval = ["scikit-learn>=1.3", "scipy>=1.10"]
+# The Phase 2 CTGAN augmenter (fraudlab.gan) needs ctgan (+ torch). Optional.
+gan = ["ctgan>=0.10", "torch>=2.0"]
+# The Phase 6/7 Investigation Agent + FastAPI backend.
+api = ["fastapi>=0.110", "uvicorn>=0.27", "groq>=1.0", "python-dotenv>=1.0"]
+test = ["pytest>=7.0", "scikit-learn>=1.3", "scipy>=1.10", "ctgan>=0.10", "torch>=2.0"]
+
+[tool.setuptools.packages.find]
+include = ["fraudlab*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

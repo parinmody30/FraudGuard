@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+out/
+*.egg-info/
+.venv/
+
+# Secrets — never commit the .env (holds GROQ_API_KEY)
+.env
+.env.*
+!.env.example

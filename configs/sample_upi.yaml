@@ -1,0 +1,11 @@
+# Sample UPI dataset: high volume, low fraud rate, low risk appetite.
+num_users: 800
+transactions_per_user: 90
+fraud_rate: 0.015
+business_type: upi
+risk_appetite: low
+noise_level: 0.3
+random_seed: 13
+output_format: csv
+start_date: "2024-01-01"
+currency: INR
