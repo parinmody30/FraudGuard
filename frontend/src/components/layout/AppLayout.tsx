@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Bell, RefreshCw } from "lucide-react";
 import { Sidebar } from "./Sidebar";
@@ -6,10 +7,11 @@ import { useHealth } from "@/hooks/useModel";
 export function AppLayout() {
   const { data: health, isError } = useHealth();
   const online = Boolean(health) && !isError;
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
+    <div className="flex h-screen overflow-hidden bg-grid-light">
+      <Sidebar collapsed={collapsed} onToggleCollapsed={() => setCollapsed((c) => !c)} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <header className="flex items-center justify-end gap-4 border-b border-slate-200 bg-white px-8 py-3">
           <span className="inline-flex items-center gap-2 text-xs font-medium text-slate-500">

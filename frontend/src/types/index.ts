@@ -13,6 +13,8 @@ export type {
   AnalyzedTransaction,
   DatasetConfig,
   DatasetSummary,
+  DatasetRunListItem,
+  DatasetRunDetail,
   ModelMetadata,
   Health,
   ApiError,

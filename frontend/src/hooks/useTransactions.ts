@@ -44,9 +44,10 @@ export function useSampleTransactions(limit = 25, enabled = true) {
   });
 }
 
-export function useScoredTransactions(params: TransactionsParams) {
+export function useScoredTransactions(params: TransactionsParams, enabled = true) {
   return useQuery({
     queryKey: ["transactions", params],
+    enabled,
     queryFn: async (): Promise<ScoredTransaction[]> => {
       const dataset = await generateDataset(params);
       const rows = (dataset.sample ?? []) as unknown as TransactionIn[];

@@ -1,16 +1,18 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import {
-  ArrowLeft, Ban, Bot, CheckCircle2, Eye, Share2, Download, AlertTriangle,
+  ArrowLeft, ArrowDownRight, ArrowUpRight, Ban, Bot, CheckCircle2, Eye, Share2, Download, AlertTriangle,
 } from "lucide-react";
 import { useAnalyzeTransaction } from "@/hooks/useInvestigation";
 import { useSampleTransactions } from "@/hooks/useTransactions";
 import { ConfidenceBadge, DecisionBadge } from "@/components/common/Badge";
+import { FraudGauge } from "@/components/investigation/FraudGauge";
 import { ShapWaterfall } from "@/components/investigation/ShapWaterfall";
+import { RiskFactorRadar } from "@/components/investigation/RiskFactorRadar";
+import { SpendComparisonChart } from "@/components/investigation/SpendComparisonChart";
 import { ErrorState, LoadingState } from "@/components/common/States";
 import { toUserMessage } from "@/lib/errors";
-import { formatCurrencyINR, formatInt, formatProbPct, formatTimestamp } from "@/lib/format";
-import { scoreColor } from "@/lib/risk";
+import { formatCurrencyINR, formatInt, formatTimestamp } from "@/lib/format";
 import type { TransactionIn } from "@/types";
 
 export default function Investigation() {
@@ -53,47 +55,74 @@ export default function Investigation() {
       {isError && <ErrorState message={toUserMessage(error)} onRetry={() => refetch()} />}
 
       {data && (
+        <div className="space-y-5">
+        {/* Analytics band — prediction gauge + two risk graphs */}
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <div className="card flex flex-col p-6 text-center">
+            <h2 className="text-lg font-bold text-slate-900">Fraud Prediction</h2>
+            <FraudGauge prob={data.result.prediction.fraud_probability} />
+            <div className="mt-auto flex items-center justify-center gap-6 pt-2">
+              <div className="flex flex-col items-center gap-1.5">
+                <span className="text-xs uppercase tracking-wide text-slate-400">Decision</span>
+                <DecisionBadge decision={data.result.prediction.decision} />
+              </div>
+              <div className="flex flex-col items-center gap-1.5">
+                <span className="text-xs uppercase tracking-wide text-slate-400">Confidence</span>
+                <ConfidenceBadge confidence={data.result.prediction.confidence} />
+              </div>
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <h2 className="text-lg font-bold text-slate-900">Risk Factor Fingerprint</h2>
+            <p className="mb-1 text-xs text-slate-400">Normalized risk across key dimensions (0–100)</p>
+            <RiskFactorRadar transaction={transaction} />
+          </div>
+
+          <div className="card p-6">
+            <h2 className="text-lg font-bold text-slate-900">Spend vs. User Behavior</h2>
+            <p className="mb-1 text-xs text-slate-400">Transaction amount against this user's norms</p>
+            <SpendComparisonChart
+              amount={transaction.amount}
+              avg={transaction.avg_user_spend}
+              median={transaction.median_user_spend}
+            />
+          </div>
+        </div>
+
+        {/* Detail · SHAP · AI grid */}
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
           {/* Column 1 — Transaction Details */}
           <section className="card p-6">
             <h2 className="border-b border-slate-100 pb-3 text-lg font-bold text-slate-900">Transaction Details</h2>
-            <dl className="mt-3 space-y-1 text-sm">
-              <Detail k="User ID" v={transaction.user_id} mono />
-              <Detail k="Timestamp" v={formatTimestamp(transaction.timestamp)} />
-              <Detail k="Amount (₹)" v={formatCurrencyINR(transaction.amount)} strong />
-              <Detail k="Merchant" v={transaction.merchant_name} />
-              <Detail k="Merchant Category" v={transaction.merchant_category} />
-              <Detail k="Channel" v={transaction.channel} />
-              <Detail k="Device" v={transaction.device_type} warn={transaction.device_risk_score >= 0.7} />
-              <Detail k="Location" v={`${transaction.city}, ${transaction.state}`} />
-              <Detail k="User Avg. Spend" v={formatCurrencyINR(transaction.avg_user_spend)} />
-              <Detail k="Velocity (1h)" v={`${formatInt(transaction.velocity_1h)} transactions`} />
-              <Detail k="Velocity (24h)" v={`${formatInt(transaction.velocity_24h)} transactions`} />
-            </dl>
+            <div className="mt-3 space-y-4 text-sm">
+              <DetailGroup title="Overview">
+                <Detail k="User ID" v={transaction.user_id} mono />
+                <Detail k="Timestamp" v={formatTimestamp(transaction.timestamp)} />
+                <Detail k="Amount (₹)" v={formatCurrencyINR(transaction.amount)} strong />
+                <Detail k="Channel" v={transaction.channel} />
+              </DetailGroup>
+              <DetailGroup title="Merchant">
+                <Detail k="Merchant" v={transaction.merchant_name} />
+                <Detail k="Category" v={transaction.merchant_category} />
+              </DetailGroup>
+              <DetailGroup title="Device & Location">
+                <Detail k="Device" v={transaction.device_type} warn={transaction.device_risk_score >= 0.7} />
+                <Detail k="Location" v={`${transaction.city}, ${transaction.state}`} />
+              </DetailGroup>
+              <DetailGroup title="Spending Behavior">
+                <Detail k="User Avg. Spend" v={formatCurrencyINR(transaction.avg_user_spend)} />
+                <Detail k="Velocity (1h)" v={`${formatInt(transaction.velocity_1h)} txns`} />
+                <Detail k="Velocity (24h)" v={`${formatInt(transaction.velocity_24h)} txns`} />
+              </DetailGroup>
+            </div>
           </section>
 
-          {/* Column 2 — Fraud Prediction + SHAP */}
-          <section className="space-y-5">
-            <div className="card p-6 text-center">
-              <h2 className="text-lg font-bold text-slate-900">Fraud Prediction</h2>
-              <div className={`mt-3 text-5xl font-extrabold ${scoreColor(data.result.prediction.fraud_probability)}`}>
-                {formatProbPct(data.result.prediction.fraud_probability)}
-              </div>
-              <div className="mt-1 text-xs uppercase tracking-widest text-slate-400">Fraud Probability</div>
-              <div className="mt-4 flex flex-col items-center gap-2">
-                <span className="text-xs uppercase tracking-wide text-slate-400">Decision</span>
-                <DecisionBadge decision={data.result.prediction.decision} />
-                <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
-                  Confidence: <ConfidenceBadge confidence={data.result.prediction.confidence} />
-                </div>
-              </div>
-            </div>
-
-            <div className="card p-6">
-              <h2 className="mb-4 text-lg font-bold text-slate-900">SHAP Explanation</h2>
-              <ShapWaterfall contributors={data.result.explanation.contributors} />
-              <p className="mt-3 text-center text-xs text-slate-400">Impact on Fraud Probability (log-odds)</p>
-            </div>
+          {/* Column 2 — SHAP */}
+          <section className="card p-6">
+            <h2 className="mb-4 text-lg font-bold text-slate-900">SHAP Explanation</h2>
+            <ShapWaterfall contributors={data.result.explanation.contributors} />
+            <p className="mt-3 text-center text-xs text-slate-400">Impact on Fraud Probability (log-odds)</p>
           </section>
 
           {/* Column 3 — AI Analysis + Actions */}
@@ -105,10 +134,21 @@ export default function Investigation() {
               <p className="mt-3 text-sm leading-relaxed text-slate-700">{data.result.investigation.summary}</p>
 
               <h3 className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-400">Signals Detected</h3>
-              <ul className="mt-1 space-y-1 text-sm text-slate-700">
-                {data.result.investigation.signals_detected.map((s, i) => (
-                  <li key={i} className="flex gap-2"><span className="text-brand">•</span> {s}</li>
-                ))}
+              <ul className="mt-2 space-y-2 text-sm text-slate-700">
+                {data.result.investigation.signals_detected.map((s, i) => {
+                  const raises = /increas/i.test(s);
+                  const lowers = /reduc|decreas/i.test(s);
+                  const Icon = raises ? ArrowUpRight : lowers ? ArrowDownRight : Bot;
+                  const tone = raises ? "text-red-500 bg-red-50" : lowers ? "text-emerald-500 bg-emerald-50" : "text-slate-400 bg-slate-100";
+                  return (
+                    <li key={i} className="flex items-start gap-2.5">
+                      <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${tone}`}>
+                        <Icon className="h-3.5 w-3.5" />
+                      </span>
+                      <span>{s}</span>
+                    </li>
+                  );
+                })}
               </ul>
 
               <div className="mt-4 rounded-lg bg-white p-3 text-sm shadow-sm">
@@ -120,15 +160,21 @@ export default function Investigation() {
               <p className="mt-3 text-xs italic text-slate-500">{data.result.investigation.confidence_explanation}</p>
 
               <h3 className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-400">Next Steps</h3>
-              <ul className="mt-1 space-y-1 text-sm text-slate-700">
+              <ul className="mt-2 space-y-2 text-sm text-slate-700">
                 {data.result.investigation.next_steps.map((s, i) => (
-                  <li key={i} className="flex gap-2"><span className="text-emerald-500">→</span> {s}</li>
+                  <li key={i} className="flex items-start gap-2.5">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-brand">
+                      {i + 1}
+                    </span>
+                    <span>{s}</span>
+                  </li>
                 ))}
               </ul>
             </div>
 
             <ActionsPanel decision={data.result.prediction.decision} />
           </section>
+        </div>
         </div>
       )}
       {isFetching && !isLoading && <p className="text-xs text-slate-400">Refreshing…</p>}
@@ -177,6 +223,15 @@ function ActionBtn({ label, icon: Icon, active, suggested, tone, onClick }: {
       <Icon className="h-4 w-4" /> {label}
       {suggested && <span className="ml-1 rounded-full bg-slate-100 px-1.5 text-[10px] font-medium text-slate-500">suggested</span>}
     </button>
+  );
+}
+
+function DetailGroup({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div>
+      <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">{title}</h3>
+      <dl className="space-y-1">{children}</dl>
+    </div>
   );
 }
 

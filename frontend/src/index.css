@@ -14,20 +14,47 @@ body,
 
 body {
   margin: 0;
-  background: #f4f6fb;
   color: #0f172a;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
+.bg-grid-light {
+  background-color: #f4f6fb;
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
 @layer components {
   .card {
-    @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+    @apply overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm;
   }
   .sidebar-link {
     @apply flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-sidebarHover hover:text-white;
   }
   .sidebar-link-active {
     @apply bg-brand text-white hover:bg-brand hover:text-white;
+  }
+
+  /* Dark grid backdrop used on the landing / auth pages. */
+  .bg-grid {
+    background-color: #0b1220;
+    background-image:
+      linear-gradient(to right, rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+  .bg-grid-fade::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(29, 78, 216, 0.35), transparent 60%),
+      linear-gradient(to bottom, transparent 0%, #0b1220 90%);
+    pointer-events: none;
+  }
+  .auth-input {
+    @apply w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:border-brand focus:bg-white/10;
   }
 }

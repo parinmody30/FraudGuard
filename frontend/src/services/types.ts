@@ -92,6 +92,30 @@ export interface DatasetSummary {
   transactions_per_user: number;
   random_seed: number;
   sample: Record<string, unknown>[];
+  run_id?: string | null;
+}
+
+/** A persisted dataset generation (summary fields only) — GET /api/dataset/history. */
+export interface DatasetRunListItem {
+  id: string;
+  created_at: string;
+  label: string;
+  business_type: string;
+  risk_appetite: string;
+  num_users: number;
+  transactions_per_user: number;
+  fraud_rate: number;
+  seed: number;
+  total_transactions: number;
+  fraud_count: number;
+  fraud_percentage: number;
+  stored_count: number;
+}
+
+/** A persisted run including its capped sample of rows — GET /api/dataset/history/{id}. */
+export interface DatasetRunDetail extends DatasetRunListItem {
+  fraud_type_distribution: Record<string, number>;
+  transactions: TransactionIn[];
 }
 
 export interface ModelMetadata {

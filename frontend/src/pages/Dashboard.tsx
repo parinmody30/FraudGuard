@@ -1,5 +1,7 @@
+import type { ReactNode } from "react";
 import {
   Activity,
+  Database,
   FileText,
   Gauge,
   Percent,
@@ -7,14 +9,21 @@ import {
   Trophy,
 } from "lucide-react";
 import { useModelMetadata } from "@/hooks/useModel";
+import { useActiveDataset } from "@/hooks/useActiveDataset";
 import { MetricCard } from "@/components/dashboard/MetricCard";
-import { ChartPlaceholder } from "@/components/dashboard/ChartPlaceholder";
+import { FraudTypeDonut } from "@/components/dashboard/FraudTypeDonut";
+import { FraudDifficultyBar } from "@/components/dashboard/FraudDifficultyBar";
+import { TransactionsTimeline } from "@/components/dashboard/TransactionsTimeline";
+import { DatasetHistoryPanel } from "@/components/dashboard/DatasetHistoryPanel";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/States";
 import { formatInt, formatPct, formatScore, formatTimestamp } from "@/lib/format";
+import { fraudByDifficulty, fraudByType, transactionsOverTime } from "@/lib/chartData";
 import { toUserMessage } from "@/lib/errors";
+import type { DatasetRunListItem, ScoredTransaction } from "@/types";
 
 export default function Dashboard() {
   const { data, isLoading, isError, error, refetch } = useModelMetadata();
+  const ds = useActiveDataset();
 
   return (
     <div className="space-y-6">
@@ -23,11 +32,16 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
           <p className="text-sm text-slate-500">Overview of your fraud detection environment</p>
         </div>
-        {data?.training_timestamp && (
-          <span className="text-xs text-slate-400">
-            Champion trained {formatTimestamp(data.training_timestamp)}
-          </span>
-        )}
+        <div className="text-right text-xs text-slate-400">
+          {ds.activeRun && (
+            <div className="flex items-center justify-end gap-1.5 font-medium text-brand">
+              <Database className="h-3.5 w-3.5" /> Active dataset · {formatTimestamp(ds.activeRun.created_at)}
+            </div>
+          )}
+          {data?.training_timestamp && (
+            <div>Champion trained {formatTimestamp(data.training_timestamp)}</div>
+          )}
+        </div>
       </div>
 
       {isLoading && <LoadingState label="Loading champion model metadata…" />}
@@ -35,12 +49,18 @@ export default function Dashboard() {
 
       {data && (
         <>
-          <DashboardMetrics data={data} />
+          <DashboardMetrics data={data} activeRun={ds.activeRun} />
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <ChartPlaceholder title="Fraud by Type" hint="Donut Chart: Type Distribution" />
-            <ChartPlaceholder title="Fraud by Difficulty" hint="Bar Chart: Difficulty Distribution" />
-            <ChartPlaceholder title="Transactions Over Time" hint="Line Chart: Timeline Trend" />
+            <ChartCard title="Fraud by Type" ds={ds}>
+              {(rows) => <FraudTypeDonut data={fraudByType(rows)} />}
+            </ChartCard>
+            <ChartCard title="Fraud by Difficulty" ds={ds}>
+              {(rows) => <FraudDifficultyBar data={fraudByDifficulty(rows)} />}
+            </ChartCard>
+            <ChartCard title="Transactions Over Time" ds={ds}>
+              {(rows) => <TransactionsTimeline data={transactionsOverTime(rows)} />}
+            </ChartCard>
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -83,10 +103,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="card p-6">
-              <h3 className="mb-4 text-lg font-bold text-slate-900">Recent Investigations</h3>
-              <EmptyState message="No persisted investigations endpoint in the contract. Open the Investigations workspace to analyze a transaction live." />
-            </div>
+            <DatasetHistoryPanel />
           </div>
         </>
       )}
@@ -94,11 +111,46 @@ export default function Dashboard() {
   );
 }
 
-function DashboardMetrics({ data }: { data: NonNullable<ReturnType<typeof useModelMetadata>["data"]> }) {
-  const datasetSize = data.dataset_size ?? null;
-  const fraudRate = data.fraud_rate ?? null;
+function ChartCard({
+  title,
+  ds,
+  children,
+}: {
+  title: string;
+  ds: ReturnType<typeof useActiveDataset>;
+  children: (rows: ScoredTransaction[]) => ReactNode;
+}) {
+  return (
+    <div className="card p-6">
+      <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+      <div className="mt-4 flex h-56 items-center justify-center">
+        {ds.isLoading && <LoadingState label="Loading transactions…" />}
+        {ds.isError && <ErrorState message={toUserMessage(ds.error)} onRetry={() => ds.refetch()} />}
+        {!ds.isLoading && !ds.isError && ds.data && ds.data.length === 0 && (
+          <EmptyState message="No transactions in this dataset." />
+        )}
+        {ds.data && ds.data.length > 0 && children(ds.data)}
+      </div>
+    </div>
+  );
+}
+
+function DashboardMetrics({
+  data,
+  activeRun,
+}: {
+  data: NonNullable<ReturnType<typeof useModelMetadata>["data"]>;
+  activeRun: DatasetRunListItem | null;
+}) {
+  // Prefer the active (saved) dataset's stats; fall back to champion-training metadata.
+  const datasetSize = activeRun?.total_transactions ?? data.dataset_size ?? null;
+  const fraudRate = activeRun ? activeRun.fraud_percentage / 100 : data.fraud_rate ?? null;
   const fraudCount =
-    datasetSize !== null && fraudRate !== null ? Math.round(datasetSize * fraudRate) : null;
+    activeRun?.fraud_count ??
+    (data.dataset_size != null && data.fraud_rate != null
+      ? Math.round(data.dataset_size * data.fraud_rate)
+      : null);
+  const sub = activeRun ? "Saved dataset" : "Training dataset";
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
@@ -107,7 +159,7 @@ function DashboardMetrics({ data }: { data: NonNullable<ReturnType<typeof useMod
         tag="Total"
         title="Total Transactions"
         value={formatInt(datasetSize)}
-        sub="Training dataset"
+        sub={sub}
         accent="blue"
       />
       <MetricCard

@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2, Play, Loader2, GitBranch } from "lucide-react";
 import { useGenerateDataset } from "@/hooks/useDataset";
+import { useDatasetSelection } from "@/context/DatasetContext";
 import { ErrorState } from "@/components/common/States";
 import { toUserMessage } from "@/lib/errors";
 import { formatInt } from "@/lib/format";
@@ -22,7 +23,13 @@ export default function DatasetGenerator() {
   });
   const navigate = useNavigate();
   const mutation = useGenerateDataset();
+  const { setActiveRunId } = useDatasetSelection();
   const result = mutation.data;
+
+  // When a generation persists a run, make it the active dataset for Dashboard/Transactions.
+  useEffect(() => {
+    if (result?.summary.run_id) setActiveRunId(result.summary.run_id);
+  }, [result?.summary.run_id, setActiveRunId]);
 
   const set = <K extends keyof DatasetConfig>(key: K, value: DatasetConfig[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -108,7 +115,10 @@ export default function DatasetGenerator() {
           {result && (
             <>
               <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-                <CheckCircle2 className="h-5 w-5" /> Dataset generated successfully! Ready for analysis.
+                <CheckCircle2 className="h-5 w-5" />
+                {result.summary.run_id
+                  ? "Dataset generated and saved to history — now the active dataset for the Dashboard."
+                  : "Dataset generated successfully! (History not saved — database offline.)"}
               </div>
 
               <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
@@ -150,6 +160,12 @@ export default function DatasetGenerator() {
                   </p>
                 </div>
                 <div className="card flex flex-col justify-center gap-3 p-6">
+                  <button
+                    onClick={() => navigate("/dashboard")}
+                    className="rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+                  >
+                    View on Dashboard
+                  </button>
                   <button
                     onClick={() => navigate("/transactions")}
                     className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"

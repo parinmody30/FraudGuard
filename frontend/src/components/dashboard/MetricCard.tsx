@@ -34,11 +34,14 @@ export function MetricCard({
           {tag}
         </span>
       </div>
-      <div className="mt-4 text-sm text-slate-500">{title}</div>
-      <div className={`mt-1 text-2xl font-bold ${accent === "red" ? "text-red-600" : "text-slate-900"}`}>
+      <div className="mt-4 truncate text-sm text-slate-500">{title}</div>
+      <div
+        className={`mt-1 truncate text-2xl font-bold ${accent === "red" ? "text-red-600" : "text-slate-900"}`}
+        title={value}
+      >
         {value}
       </div>
-      {sub && <div className="mt-1 text-xs text-slate-400">{sub}</div>}
+      {sub && <div className="mt-1 truncate text-xs text-slate-400">{sub}</div>}
     </div>
   );
 }

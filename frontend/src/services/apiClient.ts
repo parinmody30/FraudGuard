@@ -36,6 +36,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     }
     throw new ApiRequestError(response.status, detail, code);
   }
+  // 204 No Content (e.g. DELETE) has no JSON body to parse.
+  if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
 
@@ -43,4 +45,5 @@ export const apiClient = {
   get: <T>(path: string) => request<T>(path, { method: "GET" }),
   post: <T>(path: string, body: unknown) =>
     request<T>(path, { method: "POST", body: JSON.stringify(body) }),
+  del: <T>(path: string) => request<T>(path, { method: "DELETE" }),
 };

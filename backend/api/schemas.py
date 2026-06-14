@@ -157,6 +157,33 @@ class DatasetSummaryOut(BaseModel):
     transactions_per_user: int
     random_seed: int
     sample: list[dict[str, Any]]
+    # Persisted-run identifier (None when the database is unavailable).
+    run_id: str | None = None
+
+
+class DatasetRunListItem(BaseModel):
+    """A persisted dataset generation, summary fields only (no transaction rows)."""
+
+    id: str
+    created_at: str
+    label: str
+    business_type: str
+    risk_appetite: str
+    num_users: int
+    transactions_per_user: int
+    fraud_rate: float
+    seed: int
+    total_transactions: int
+    fraud_count: int
+    fraud_percentage: float
+    stored_count: int
+
+
+class DatasetRunDetailOut(DatasetRunListItem):
+    """A persisted run including its capped sample of transaction rows."""
+
+    fraud_type_distribution: dict[str, int]
+    transactions: list[dict[str, Any]]
 
 
 # --------------------------------------------------------------------- model / health

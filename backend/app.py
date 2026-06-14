@@ -40,6 +40,14 @@ def create_app() -> FastAPI:
     )
     for router in ALL_ROUTERS:
         app.include_router(router)
+
+    @app.on_event("startup")
+    def _startup() -> None:
+        # Initialize Postgres for dataset history. Degrades gracefully if unreachable.
+        from backend.db import init_db
+
+        init_db()
+
     return app
 
 

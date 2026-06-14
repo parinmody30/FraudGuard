@@ -4,5 +4,11 @@ export { apiClient, API_BASE_URL, ApiRequestError } from "./apiClient";
 export { scoreTransactions } from "./scoringService";
 export { explainTransactions } from "./explainabilityService";
 export { investigateExplanations, analyzeTransactions } from "./investigationService";
-export { generateDataset, DEFAULT_DATASET_CONFIG } from "./datasetService";
+export {
+  generateDataset,
+  getDatasetHistory,
+  getDatasetRun,
+  deleteDatasetRun,
+  DEFAULT_DATASET_CONFIG,
+} from "./datasetService";
 export { getModelMetadata, getHealth } from "./modelService";

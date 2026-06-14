@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Download, Search, SlidersHorizontal } from "lucide-react";
-import { DEFAULT_TX_PARAMS, useScoredTransactions } from "@/hooks/useTransactions";
+import { ChevronLeft, ChevronRight, Download, Eye, Search, SlidersHorizontal } from "lucide-react";
+import { useActiveDataset } from "@/hooks/useActiveDataset";
 import { DecisionBadge } from "@/components/common/Badge";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/States";
+import { TransactionDetailModal } from "@/components/transactions/TransactionDetailModal";
 import { toUserMessage } from "@/lib/errors";
 import { formatCurrencyINR, formatScore, formatTimestamp, truncate } from "@/lib/format";
 import { scoreColor, tierOf } from "@/lib/risk";
@@ -17,7 +18,7 @@ const FRAUD_TYPES = [
 ];
 
 export default function Transactions() {
-  const { data, isLoading, isError, error, refetch, isFetching } = useScoredTransactions(DEFAULT_TX_PARAMS);
+  const { data, isLoading, isError, error, refetch, source } = useActiveDataset();
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
@@ -27,6 +28,7 @@ export default function Transactions() {
   const [minAmt, setMinAmt] = useState("");
   const [maxAmt, setMaxAmt] = useState("");
   const [page, setPage] = useState(0);
+  const [viewing, setViewing] = useState<ScoredTransaction | null>(null);
 
   const filtered = useMemo(() => {
     const rows = data ?? [];
@@ -100,7 +102,9 @@ export default function Transactions() {
         </div>
         <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
           <SlidersHorizontal className="h-3.5 w-3.5" />
-          {isFetching ? "Scoring transactions…" : `${filtered.length} of ${data?.length ?? 0} transactions match`}
+          {isLoading
+            ? "Loading transactions…"
+            : `${filtered.length} of ${data?.length ?? 0} ${source === "history" ? "saved" : ""} transactions match`}
         </div>
       </div>
 
@@ -121,7 +125,12 @@ export default function Transactions() {
               </thead>
               <tbody>
                 {pageRows.map((t) => (
-                  <Row key={t.transaction_id} t={t} onInvestigate={() => navigate("/investigations", { state: { transaction: t } })} />
+                  <Row
+                    key={t.transaction_id}
+                    t={t}
+                    onView={() => setViewing(t)}
+                    onInvestigate={() => navigate("/investigations", { state: { transaction: t } })}
+                  />
                 ))}
               </tbody>
             </table>
@@ -141,12 +150,14 @@ export default function Transactions() {
         </div>
       )}
 
+      {viewing && <TransactionDetailModal transaction={viewing} onClose={() => setViewing(null)} />}
+
       <style>{`.tx-input{width:100%;border:1px solid #e2e8f0;border-radius:0.6rem;padding:0.5rem 0.7rem;font-size:0.875rem;background:#fff}.tx-input:focus{outline:none;border-color:#1d4ed8}`}</style>
     </div>
   );
 }
 
-function Row({ t, onInvestigate }: { t: ScoredTransaction; onInvestigate: () => void }) {
+function Row({ t, onView, onInvestigate }: { t: ScoredTransaction; onView: () => void; onInvestigate: () => void }) {
   const p = t.prediction;
   return (
     <tr className="border-t border-slate-100 hover:bg-slate-50/60">
@@ -162,9 +173,14 @@ function Row({ t, onInvestigate }: { t: ScoredTransaction; onInvestigate: () => 
       </td>
       <td className="px-4 py-3">{p ? <DecisionBadge decision={p.decision} /> : <span className="text-slate-300">—</span>}</td>
       <td className="px-4 py-3">
-        <button onClick={onInvestigate} className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-brand hover:bg-blue-50">
-          Investigate
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button onClick={onView} title="View details" className="rounded-md border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50 hover:text-brand">
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+          <button onClick={onInvestigate} className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-brand hover:bg-blue-50">
+            Investigate
+          </button>
+        </div>
       </td>
     </tr>
   );
