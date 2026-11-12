@@ -52,6 +52,9 @@ cp .env.example .env          # optionally set GROQ_API_KEY and DATABASE_URL
 ./start.sh                    # backend on :8000, frontend on :5173
 ```
 
+**Windows:** double-click `setup-windows.bat` once, then `start-windows.bat` to launch (two terminal
+windows open — keep them open while using the app).
+
 Open http://localhost:5173 and sign up (accounts are stored locally in the browser).
 API docs are at http://localhost:8000/docs.
 
