@@ -12,3 +12,4 @@ export {
   DEFAULT_DATASET_CONFIG,
 } from "./datasetService";
 export { getModelMetadata, getHealth } from "./modelService";
+export { getReportsSummary, getSystemStatus } from "./reportsService";

@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { API_BASE_URL } from "@/services";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -34,7 +35,7 @@ export function Sidebar({
 
   return (
     <aside
-      className={`relative flex h-screen shrink-0 flex-col bg-sidebar text-white transition-all duration-200 ${
+      className={`relative flex h-screen print:hidden shrink-0 flex-col bg-sidebar text-white transition-all duration-200 ${
         collapsed ? "w-20" : "w-64"
       }`}
     >
@@ -94,8 +95,10 @@ export function Sidebar({
       <div className="space-y-1 px-3 pb-5">
         <a
           className={`sidebar-link ${collapsed ? "justify-center px-0" : ""}`}
-          href="#"
-          title={collapsed ? "Documentation" : undefined}
+          href={`${API_BASE_URL}/docs`}
+          target="_blank"
+          rel="noreferrer"
+          title={collapsed ? "API Documentation" : "Interactive API documentation (Swagger)"}
         >
           <BookOpen className="h-5 w-5 shrink-0" /> {!collapsed && "Documentation"}
         </a>

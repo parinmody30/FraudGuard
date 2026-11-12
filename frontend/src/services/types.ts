@@ -140,3 +140,42 @@ export interface ApiError {
   detail: string;
   code?: string | null;
 }
+
+export interface LeaderboardRow {
+  dataset: string;
+  rank: number;
+  model: string;
+  pr_auc: number | null;
+  roc_auc: number | null;
+  precision: number | null;
+  recall: number | null;
+  f1: number | null;
+  recall_easy?: number | null;
+  recall_medium?: number | null;
+  recall_hard?: number | null;
+  recall_at_1pct?: number | null;
+  recall_at_2pct?: number | null;
+  recall_at_5pct?: number | null;
+}
+
+export interface ReportsSummary {
+  leaderboard: LeaderboardRow[];
+  benchmark_config: Record<string, unknown> | null;
+  hybrid_composition: Record<string, unknown> | null;
+  ctgan_decision: {
+    verdict?: string;
+    recommendation?: string;
+    pr_auc_delta_stats?: { n: number; improved: number; degraded: number; median_delta: number };
+    recall_hard_delta_stats?: { n: number; improved: number; degraded: number; median_delta: number };
+  } | null;
+  improvement: Array<Record<string, number | string>>;
+}
+
+export interface SystemStatus {
+  api: "ok";
+  version: string;
+  database: boolean;
+  groq_configured: boolean;
+  model_available: boolean;
+  reports_available: boolean;
+}

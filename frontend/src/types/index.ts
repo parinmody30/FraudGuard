@@ -18,6 +18,9 @@ export type {
   ModelMetadata,
   Health,
   ApiError,
+  LeaderboardRow,
+  ReportsSummary,
+  SystemStatus,
 } from "@/services/types";
 
 // UI-only derived view models (not backend contracts).

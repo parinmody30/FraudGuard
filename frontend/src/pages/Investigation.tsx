@@ -1,8 +1,12 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import {
-  ArrowLeft, ArrowDownRight, ArrowUpRight, Ban, Bot, CheckCircle2, Eye, Share2, Download, AlertTriangle,
+  ArrowLeft, ArrowDownRight, ArrowUpRight, Ban, Bot, Check, CheckCircle2, Eye, Share2, Download, AlertTriangle,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { useSettings } from "@/lib/settings";
+import { buildHtmlReport, buildShareText, copyToClipboard, downloadFile } from "@/lib/investigationReport";
 import { useAnalyzeTransaction } from "@/hooks/useInvestigation";
 import { useActiveDataset } from "@/hooks/useActiveDataset";
 import { ConfidenceBadge, DecisionBadge } from "@/components/common/Badge";
@@ -31,7 +35,34 @@ export default function Investigation() {
     return best;
   }, [passed, sample.data]);
 
-  const { data, isLoading, isError, error, refetch, isFetching } = useAnalyzeTransaction(transaction, true);
+  const [settings] = useSettings();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { data, isLoading, isError, error, refetch, isFetching } = useAnalyzeTransaction(transaction, settings.useAiNarratives);
+  const { action, setAction, notes, setNotes } = useCaseNotes(transaction?.transaction_id ?? null);
+  const [toast, setToast] = useState<string | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(null), 2500);
+    return () => clearTimeout(id);
+  }, [toast]);
+
+  const reportCtx = () =>
+    data && transaction
+      ? { transaction, result: data.result, mode: data.mode, analystAction: action, notes, analyst: settings.analystName || user?.name || "" }
+      : null;
+  const onExport = () => {
+    const ctx = reportCtx();
+    if (!ctx) return;
+    downloadFile(`investigation-${ctx.transaction.transaction_id}.html`, buildHtmlReport(ctx), "text/html");
+    setToast("Report downloaded");
+  };
+  const onShare = async () => {
+    const ctx = reportCtx();
+    if (!ctx) return;
+    const ok = await copyToClipboard(buildShareText(ctx));
+    setToast(ok ? "Case summary copied to clipboard" : "Could not access the clipboard");
+  };
 
   if (!passed && sample.isLoading) return <LoadingState label="Loading a transaction to investigate…" />;
   if (!transaction) return <ErrorState message="No transaction available to investigate." onRetry={() => sample.refetch()} />;
@@ -40,18 +71,18 @@ export default function Investigation() {
     <div className="space-y-5">
       <div className="flex items-start justify-between">
         <div>
-          <button onClick={() => history.back()} className="mb-1 inline-flex items-center gap-1 text-sm font-medium text-brand">
+          <button onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/transactions"))} className="mb-1 inline-flex items-center gap-1 text-sm font-medium text-brand">
             <ArrowLeft className="h-4 w-4" /> Back to Transactions
           </button>
           <h1 className="flex items-center gap-3 text-2xl font-bold text-slate-900">
             Transaction ID: {transaction.transaction_id}
             {data && <RiskTag prob={data.result.prediction.fraud_probability} />}
           </h1>
-          {data && <p className="text-sm text-slate-500">Agent mode: {data.mode.toUpperCase()}</p>}
+          {data && <p className="text-sm text-slate-500">Narrative engine: {data.mode === "groq" ? "Groq LLM" : "Offline analyst engine (rule-based)"}</p>}
         </div>
         <div className="flex gap-2">
-          <HeaderBtn icon={Download} label="Export Report" />
-          <HeaderBtn icon={Share2} label="Share" />
+          <HeaderBtn icon={Download} label="Export Report" onClick={onExport} disabled={!data} />
+          <HeaderBtn icon={Share2} label="Share" onClick={onShare} disabled={!data} />
         </div>
       </div>
 
@@ -176,19 +207,51 @@ export default function Investigation() {
               </ul>
             </div>
 
-            <ActionsPanel decision={data.result.prediction.decision} />
+            <ActionsPanel decision={data.result.prediction.decision} action={action} setAction={setAction}
+              notes={notes} setNotes={setNotes} />
           </section>
         </div>
         </div>
       )}
       {isFetching && !isLoading && <p className="text-xs text-slate-400">Refreshing…</p>}
+      {toast && (
+        <div role="status" className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-lg print:hidden">
+          <Check className="h-4 w-4 text-emerald-400" /> {toast}
+        </div>
+      )}
     </div>
   );
 }
 
-function ActionsPanel({ decision }: { decision: string }) {
-  const [action, setAction] = useState<string | null>(null);
-  const [notes, setNotes] = useState("");
+// Analyst action + notes, persisted per transaction in this browser.
+function useCaseNotes(id: string | null) {
+  const key = id ? `fraudlab_notes:${id}` : null;
+  const [action, setActionState] = useState<string | null>(null);
+  const [notes, setNotesState] = useState("");
+  useEffect(() => {
+    let saved: { action?: string | null; notes?: string } = {};
+    try {
+      saved = key ? (JSON.parse(localStorage.getItem(key) ?? "{}") as typeof saved) : {};
+    } catch { /* ignore corrupted entry */ }
+    setActionState(saved.action ?? null);
+    setNotesState(saved.notes ?? "");
+  }, [key]);
+  const persist = (next: { action: string | null; notes: string }) => {
+    if (!key) return;
+    try { localStorage.setItem(key, JSON.stringify(next)); } catch { /* storage unavailable */ }
+  };
+  return {
+    action,
+    notes,
+    setAction: (a: string) => { setActionState(a); persist({ action: a, notes }); },
+    setNotes: (n: string, save = false) => { setNotesState(n); if (save) persist({ action, notes: n }); },
+  };
+}
+
+function ActionsPanel({ decision, action, setAction, notes, setNotes }: {
+  decision: string; action: string | null; setAction: (a: string) => void;
+  notes: string; setNotes: (n: string, save?: boolean) => void;
+}) {
   const [saved, setSaved] = useState(false);
   return (
     <div className="card p-6">
@@ -205,12 +268,12 @@ function ActionsPanel({ decision }: { decision: string }) {
       <textarea value={notes} onChange={(e) => { setNotes(e.target.value); setSaved(false); }}
         placeholder="Enter notes about this transaction analysis…"
         className="mt-1 h-24 w-full resize-none rounded-lg border border-slate-200 p-2 text-sm focus:border-brand focus:outline-none" />
-      <button onClick={() => setSaved(true)}
+      <button onClick={() => { setNotes(notes, true); setSaved(true); }}
         className="mt-2 w-full rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
         Save Notes
       </button>
-      {saved && <p className="mt-2 text-xs text-emerald-600">Saved locally (no persistence endpoint in the contract).</p>}
-      {action && <p className="mt-1 text-xs text-slate-500">Analyst action “{action}” recorded locally.</p>}
+      {saved && <p className="mt-2 text-xs text-emerald-600">Notes saved. They are included in exported reports.</p>}
+      {action && <p className="mt-1 text-xs text-slate-500">Analyst action “{action}” recorded for this case.</p>}
     </div>
   );
 }
@@ -258,9 +321,9 @@ function RiskTag({ prob }: { prob: number }) {
   );
 }
 
-function HeaderBtn({ icon: Icon, label }: { icon: typeof Share2; label: string }) {
+function HeaderBtn({ icon: Icon, label, onClick, disabled }: { icon: typeof Share2; label: string; onClick: () => void; disabled?: boolean }) {
   return (
-    <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
+    <button onClick={onClick} disabled={disabled} className="disabled:opacity-50 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
       <Icon className="h-4 w-4" /> {label}
     </button>
   );

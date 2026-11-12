@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from backend.api import dataset, explainability, health, investigation, scoring
+from backend.api import dataset, explainability, health, investigation, reports, scoring
 
 ALL_ROUTERS = (
     health.router,
@@ -10,6 +10,7 @@ ALL_ROUTERS = (
     explainability.router,
     investigation.router,
     dataset.router,
+    reports.router,
 )
 
 __all__ = ["ALL_ROUTERS"]

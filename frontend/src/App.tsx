@@ -8,7 +8,8 @@ import Dashboard from "@/pages/Dashboard";
 import DatasetGenerator from "@/pages/DatasetGenerator";
 import Transactions from "@/pages/Transactions";
 import Investigation from "@/pages/Investigation";
-import Placeholder from "@/pages/Placeholder";
+import Reports from "@/pages/Reports";
+import Settings from "@/pages/Settings";
 
 export default function App() {
   return (
@@ -23,8 +24,8 @@ export default function App() {
           <Route path="/dataset" element={<DatasetGenerator />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/investigations" element={<Investigation />} />
-          <Route path="/reports" element={<Placeholder title="Reports" />} />
-          <Route path="/settings" element={<Placeholder title="Settings" />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>
 
