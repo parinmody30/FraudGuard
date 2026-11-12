@@ -40,6 +40,30 @@ Requires Python 3.11+. Dependencies: `numpy`, `pandas`, `pyarrow`, `pyyaml` (+ `
 
 ---
 
+## Running the web app (backend + frontend)
+
+Prerequisites: Python 3.11+, Node 18+, and (optional) PostgreSQL for dataset history.
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+(cd frontend && npm install)
+cp .env.example .env          # optionally set GROQ_API_KEY and DATABASE_URL
+./start.sh                    # backend on :8000, frontend on :5173
+```
+
+Open http://localhost:5173 and sign up (accounts are stored locally in the browser).
+API docs are at http://localhost:8000/docs.
+
+* **PostgreSQL** — if `DATABASE_URL` is reachable, generated datasets are saved and listed in
+  *Dataset History*; the database is created automatically. Without it, everything else works.
+* **Groq** — without `GROQ_API_KEY` the Investigation Agent uses its deterministic offline
+  narrative ("Agent mode: FALLBACK"); with a key it writes LLM narratives ("GROQ").
+* **CTGAN / PyTorch** are only needed for the GAN training scripts:
+  `pip install -r requirements-gan.txt`.
+
+---
+
 ## Quick start
 
 Generate from a sample config:

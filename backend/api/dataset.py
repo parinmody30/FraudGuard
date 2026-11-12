@@ -55,13 +55,26 @@ def generate_dataset(config: DatasetConfigIn) -> DatasetSummaryOut:
 
     full_df = transactions_to_dataframe(transactions)
     full_df = full_df.assign(timestamp=full_df["timestamp"].astype(str))
+    # Missing values (e.g. fraud_type on legitimate rows) surface as NaN, which is not valid
+    # JSON — Postgres rejects it and the history insert fails. Normalize them to None/null.
+    full_df = full_df.astype(object).where(full_df.notna(), None)
+
+    # Rows are chronological, so head() would only cover the first days of the timeline
+    # (when users have almost no history). Take a seeded random sample across the whole
+    # timeline instead — deterministic, preserves the fraud rate — and keep it chronological.
+    if len(full_df) > STORE_LIMIT:
+        sampled_df = full_df.sample(n=STORE_LIMIT, random_state=config.seed).sort_values(
+            "timestamp", kind="stable"
+        )
+    else:
+        sampled_df = full_df
 
     sample = []
     if config.preview_limit:
-        sample = full_df.head(config.preview_limit).to_dict(orient="records")
+        sample = sampled_df.head(config.preview_limit).to_dict(orient="records")
 
     # Persist run with a capped sample of rows for history replay.
-    stored_rows = full_df.head(STORE_LIMIT).to_dict(orient="records")
+    stored_rows = sampled_df.to_dict(orient="records")
     run_id = _persist_run(config, summary, stored_rows)
 
     return DatasetSummaryOut(

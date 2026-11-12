@@ -1,0 +1,4 @@
+# Optional: only for CTGAN training/sampling scripts (scripts/*ctgan*, demo_hybrid.py).
+# Not needed to run the web app. Large download (PyTorch).
+ctgan>=0.10
+torch>=2.0

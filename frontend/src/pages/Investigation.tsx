@@ -4,7 +4,7 @@ import {
   ArrowLeft, ArrowDownRight, ArrowUpRight, Ban, Bot, CheckCircle2, Eye, Share2, Download, AlertTriangle,
 } from "lucide-react";
 import { useAnalyzeTransaction } from "@/hooks/useInvestigation";
-import { useSampleTransactions } from "@/hooks/useTransactions";
+import { useActiveDataset } from "@/hooks/useActiveDataset";
 import { ConfidenceBadge, DecisionBadge } from "@/components/common/Badge";
 import { FraudGauge } from "@/components/investigation/FraudGauge";
 import { ShapWaterfall } from "@/components/investigation/ShapWaterfall";
@@ -19,12 +19,16 @@ export default function Investigation() {
   const location = useLocation();
   const passed = (location.state as { transaction?: TransactionIn } | null)?.transaction ?? null;
 
-  // Fallback: if opened directly, pull a sample and pick a fraud-like row to demo.
-  const sample = useSampleTransactions(25, !passed);
+  // Fallback: if opened directly (e.g. from the sidebar), use the active dataset and open its
+  // highest-risk transaction, so the page always lands on a meaningful case.
+  const sample = useActiveDataset();
   const transaction = useMemo<TransactionIn | null>(() => {
     if (passed) return passed;
     const rows = sample.data ?? [];
-    return rows.find((r) => r.is_fraud) ?? rows[0] ?? null;
+    if (rows.length === 0) return null;
+    const score = (r: (typeof rows)[number]) => r.prediction?.fraud_probability ?? (r.is_fraud ? 0.5 : 0);
+    const { prediction: _p, ...best } = rows.reduce((a, b) => (score(b) > score(a) ? b : a));
+    return best;
   }, [passed, sample.data]);
 
   const { data, isLoading, isError, error, refetch, isFetching } = useAnalyzeTransaction(transaction, true);
